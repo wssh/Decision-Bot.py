@@ -1,4 +1,4 @@
-# Decision-Bot.py
+#Decision-Bot.py
 
 12/28/2015
 This is a bot for a Discord server. Has basic features that helps organize parties for PSO2. Alerts the main-channel of the discord server about EQs whenever PSO2ES updates them.
