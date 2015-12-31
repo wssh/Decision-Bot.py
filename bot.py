@@ -217,7 +217,7 @@ def on_message(message):
             else:
                 client.send_message(message.channel, 'There is no existing MPA to delete in a non EQ channel.')
         else:
-                client.send_message(message.channel, 'You are not a manager.')
+                generateList(message, 'You are not a manager.')
 				
     elif message.content.lower().startswith('!removeplayer '):
         if message.author.roles[1].permissions.can_manage_channels:
@@ -237,7 +237,7 @@ def on_message(message):
                                     appended = True
                                     break
                             if not appended:    
-                                client.send_message(message.channel, "Player {} does not exist in the MPA list".format(userstr))
+                                generateList(message, "Player {} does not exist in the MPA list".format(userstr))
                     else:
                         client.send_message(message.channel, "There are no players in the MPA.")
                 else:
@@ -245,7 +245,7 @@ def on_message(message):
             else:
                 client.send_message(message.channel, 'There is nothing to remove in a non-EQ channel.')
         else:
-            client.send_message(message.channel, "You don't have permissions to use this command")
+            generateList(message, "You don't have permissions to use this command")
 
     elif message.content.lower().startswith('!addplayer'):
         if message.author.roles[1].permissions.can_manage_channels:
