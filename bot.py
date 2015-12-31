@@ -34,11 +34,13 @@ oldstr = ''
 finalstr = ''
 date = ''
 decisionbotid = '130739227351711744'
-#decisionbotid = '131523343139602432' --- Kodi's testbot
+#decisionbotid = '131523343139602432'# --- Kodi's testbot
 enfoniusid = '125045788958130177'
 EQDict = {}
 IDDict = {}
 EQTest = {}
+EQPostDict = {}
+
 parsestarted = True
 
 #password in infos.txt
@@ -69,10 +71,10 @@ def generateList(message, inputstring):
         
     global oldmessage
     try:
-        client.edit_message(oldmessage, playerlist + inputstring)
+        client.edit_message(EQPostDict[message.channel.name], playerlist + inputstring)
     except:
         print('posting first list')
-        oldmessage = client.send_message(message.channel, playerlist + inputstring)
+        EQPostDict[message.channel.name] = client.send_message(message.channel, playerlist + inputstring)
     
 
 def find_between( s, first, last ):
