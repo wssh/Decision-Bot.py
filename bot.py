@@ -22,10 +22,6 @@ class FakeMember():
     def __init__(self, name):
         self.name = name
 
-url = 'http://pso2emq.flyergo.eu/api/v2'
-values = {'s':'basics','sumbit':'search'}
-data = urllib.parse.urlencode(values)
-ship1substr = 'Ship01:'
 string1 = "[ "
 string2 = '"},'
 EST = Zone(-5,False,'EST')
@@ -34,18 +30,27 @@ oldstr = ''
 finalstr = ''
 date = ''
 decisionbotid = '130739227351711744'
+#decisionbotid = '131523343139602432'# --- Kodi's testbot
 enfoniusid = '125045788958130177'
 EQDict = {}
 IDDict = {}
 EQTest = {}
+EQPostDict = {}
+
 parsestarted = True
 
 #password in infos.txt
 fp_infos = open("infos.txt", "r")
-infos = fp_infos.read()
+
+user = fp_infos.readline()
+user = user.replace('\n', '')
+
+password = fp_infos.readline()
+password = password.replace('\n', '')
+
 fp_infos.close()
 client = discord.Client()
-client.login('snakeofthefestival@gmail.com', infos)
+client.login(user, password)
 
 
 #debug method
@@ -60,7 +65,13 @@ def generateList(message, inputstring):
         playerlist += (str(pCount) + ".\n")
         pCount+=1
         
-    client.send_message(message.channel, playerlist + inputstring)
+    global oldmessage
+    try:
+        client.edit_message(EQPostDict[message.channel.name], playerlist + inputstring)
+    except:
+        print('posting first list')
+        EQPostDict[message.channel.name] = client.send_message(message.channel, playerlist + inputstring)
+    
 
 def find_between( s, first, last ):
     try:
@@ -82,9 +93,11 @@ def findEQ():
     global oldstr
     global finalstr
     global date
-    global parsestarted
-    
-    threading.Timer(10, findEQ).start()
+
+    threading.Timer(300, findEQ).start()
+    url = 'http://pso2emq.flyergo.eu/api/v2'
+    values = {'s':'basics','sumbit':'search'}
+    ship1substr = 'Ship01:'
     data = urllib.parse.urlencode(values)
     data = data.encode('utf-8')
     req =  urllib.request.Request(url,data)
@@ -102,29 +115,28 @@ def findEQ():
         string6 = string5.replace('\\', "\n")
         finalstr = stringxx + '\nShip02' + string6
         #UGLY PARSE END
-        if parsestarted == True:
-            if '\nShip02: -' in finalstr:
-                if oldstr != finalstr:
-                    noeqstr = stringxx + '\nThere is no EQ going on in Ship02 at the given hour.'
-                    client.send_message(client.servers[0], str(date) + '\n' + str(noeqstr))
-                    print(date)
-                    print(noeqstr)
-                    oldstr = finalstr
-            elif oldstr != finalstr:
-                client.send_message(client.servers[0], '@everyone\n' + str(date) + '\n' + str(finalstr))
-                print(date)
-                print(finalstr)
-                oldstr = finalstr
-        else:
-            string4 = string3
-            string5 = string4.replace("\\n", " ")
-            string6 = string5.replace('\\', "\n")
-            finalstr = "[ " + string6
+        if '\nShip02: -' in finalstr:
             if oldstr != finalstr:
-                client.send_message(client.servers[0], '@everyone\n' + str(date) + '\n' + str(finalstr))
+                noeqstr = stringxx + '\nThere is no EQ going on in Ship02 at the given hour.'
+                client.send_message(client.servers[0], str(date) + '\n' + str(noeqstr))
                 print(date)
-                print(finalstr)
-                oldstr = finalstr 
+                print(noeqstr)
+                oldstr = finalstr
+        elif oldstr != finalstr:
+            client.send_message(client.servers[0], '@everyone\n' + str(date) + '\n' + str(finalstr))
+            print(date)
+            print(finalstr)
+            oldstr = finalstr
+    else:
+        string4 = string3
+        string5 = string4.replace("\\n", " ")
+        string6 = string5.replace('\\', "\n")
+        finalstr = "[ " + string6
+        if oldstr != finalstr:
+            client.send_message(client.servers[0], '@everyone\n' + str(date) + '\n' + str(finalstr))
+            print(date)
+            print(finalstr)
+            oldstr = finalstr 
     
 @client.event
 #Print-out to CMD who you're logged in as
@@ -153,10 +165,10 @@ def on_message(message):
                 if message.author.roles[1].permissions.can_manage_channels:
                     EQTest[message.channel.name] = list()
                     client.send_message(message.channel, 'Starting MPA on {}'.format(message.channel.name))
-                else:
+                else: 
                     client.send_message(message.channel, 'You are not a manager.')
             else:
-                client.send_message(message.channel, 'There is already an MPA to keep track of in this channel.')
+                generateList(message, 'There is already an MPA to keep track of in this channel.')
         else:
             client.send_message(message.channel, 'You are unable to start a MPA on a non-EQ channel')
 
@@ -172,9 +184,9 @@ def on_message(message):
                             EQTest[message.channel.name].append(message.author)
                             generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
                     else:
-                        client.send_message(message.channel, "You are already in the MPA")
+                        generateList(message, "You are already in the MPA")
                 else:
-                    client.send_message(message.channel, 'The MPA is now full.')
+                    generateList(message, 'The MPA is now full.')
             else:
                 client.send_message(message.channel, 'A manager did not start the MPA yet')
 
@@ -185,7 +197,7 @@ def on_message(message):
                         EQTest[message.channel.name].remove(message.author)
                         generateList(message, '*Removed {} from the MPA list*'.format(message.author.name))
                     else:
-                     client.send_message(message.channel, 'You were not in the MPA list in the first place.')
+                     generateList(message, 'You were not in the MPA list in the first place.')
 					 
     elif message.content.lower() == '!removempa':
         if message.author.roles[1].permissions.can_manage_channels:
@@ -202,7 +214,7 @@ def on_message(message):
             else:
                 client.send_message(message.channel, 'There is no existing MPA to delete in a non EQ channel.')
         else:
-                client.send_message(message.channel, 'You are not a manager.')
+                generateList(message, 'You are not a manager.')
 				
     elif message.content.lower().startswith('!removeplayer '):
         if message.author.roles[1].permissions.can_manage_channels:
@@ -222,7 +234,7 @@ def on_message(message):
                                     appended = True
                                     break
                             if not appended:    
-                                client.send_message(message.channel, "Player {} does not exist in the MPA list".format(userstr))
+                                generateList(message, "Player {} does not exist in the MPA list".format(userstr))
                     else:
                         client.send_message(message.channel, "There are no players in the MPA.")
                 else:
@@ -230,7 +242,7 @@ def on_message(message):
             else:
                 client.send_message(message.channel, 'There is nothing to remove in a non-EQ channel.')
         else:
-            client.send_message(message.channel, "You don't have permissions to use this command")
+            generateList(message, "You don't have permissions to use this command")
 
     elif message.content.lower().startswith('!addplayer'):
         if message.author.roles[1].permissions.can_manage_channels:
@@ -261,10 +273,7 @@ def on_message(message):
 
     elif message.content.lower() == '!startparse':
         if not message.channel.name.startswith('eq'):
-            global parsestarted
             if message.author.id == enfoniusid:
-                parsestarted = True
-                if parsestarted == True:
                     findEQ()
                     #DEBUG client.send_message(message.channel, 'begin parse')
 
@@ -278,16 +287,10 @@ def on_message(message):
             suffixes = ['+', '', '-']
             client.send_message(message.channel, letters[randint(0, 4)] + suffixes[randint(0,2)])
 
-    elif message.content.lower() == '!stopparse':
-        if not message.channel.name.startswith('eq'):
-            global parsestarted
-            if message.author.id == enfoniusid:
-                parsestarted = False
-
     #DELETE ALL THE MESSAGES THAT AREN'T THE BOT'S IN THE EQ CHANNEL
-    #if message.channel.name.startswith('eq'):
-        #if message.author.id != decisionbotid:
-            #client.delete_message(message)
+    if message.channel.name.startswith('eq'):
+        if message.author.id != decisionbotid:
+            client.delete_message(message)
 
 
 @client.event
