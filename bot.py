@@ -93,7 +93,8 @@ def findEQ():
     global oldstr
     global finalstr
     global date
-
+    global announcementChannel
+    
     threading.Timer(300, findEQ).start()
     url = 'http://pso2emq.flyergo.eu/api/v2'
     values = {'s':'basics','sumbit':'search'}
@@ -118,12 +119,12 @@ def findEQ():
         if '\nShip02: -' in finalstr:
             if oldstr != finalstr:
                 noeqstr = stringxx + '\nThere is no EQ going on in Ship02 at the given hour.'
-                client.send_message(client.servers[0], str(date) + '\n' + str(noeqstr))
+                client.send_message(announcementChannel, str(date) + '\n' + str(noeqstr))
                 print(date)
                 print(noeqstr)
                 oldstr = finalstr
         elif oldstr != finalstr:
-            client.send_message(client.servers[0], '@everyone\n' + str(date) + '\n' + str(finalstr))
+            client.send_message(announcementChannel, '@everyone\n' + str(date) + '\n' + str(finalstr))
             print(date)
             print(finalstr)
             oldstr = finalstr
@@ -133,7 +134,7 @@ def findEQ():
         string6 = string5.replace('\\', "\n")
         finalstr = "[ " + string6
         if oldstr != finalstr:
-            client.send_message(client.servers[0], '@everyone\n' + str(date) + '\n' + str(finalstr))
+            client.send_message(announcementChannel, '@everyone\n' + str(date) + '\n' + str(finalstr))
             print(date)
             print(finalstr)
             oldstr = finalstr 
@@ -145,6 +146,16 @@ def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    
+    global announcementChannel
+    announcementChannel = client.servers[0]
+    
+    for x in client.get_all_channels():
+        print("Checking " + x.name)
+        if x.name == 'bot_notifications':
+            announcementChannel = x
+            print("Set announcementChannel successfully to " + x.name)
+            break
     findEQ()
 
 @client.event
