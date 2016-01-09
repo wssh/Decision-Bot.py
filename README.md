@@ -35,7 +35,7 @@ To get the bot to do it's autonomous methods, there are simple conditions that m
 * There has to be a bot_notifications channel for the bot to post in, or the bot will proceed to post EQ notifications in the default channel.
 * Emergency Quest channels must start with an **eq** tag in order for the bot to keep track of MPAs. An example of such channel name can be *eq_pd_11pm*.
 
-That's about it.
+That's about it. Make sure you update infos.txt and read through the first few lines of code to replace some of the ID strings so your bot can fully function.
 
 You will need the following API to get the bot working: https://github.com/Rapptz/discord.py
 
