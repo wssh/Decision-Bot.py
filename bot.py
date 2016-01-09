@@ -22,6 +22,10 @@ class FakeMember():
     def __init__(self, name):
         self.name = name
 
+class PlaceHolder():
+    def __init__(self, name):
+        self.name = name
+
 string1 = "[ "
 string2 = '"},'
 EST = Zone(-5,False,'EST')
@@ -29,14 +33,14 @@ JST = Zone(9,False,'JST')
 oldstr = ''
 finalstr = ''
 date = ''
-decisionbotid = '130739227351711744'
+decisionbotid = '134663393586970624'
 #decisionbotid = '131523343139602432'# --- Kodi's testbot
 enfoniusid = '125045788958130177'
 EQDict = {}
 IDDict = {}
 EQTest = {}
 EQPostDict = {}
-
+appended = False
 parsestarted = True
 
 #password in infos.txt
@@ -56,16 +60,31 @@ client.login(user, password)
 #debug method
 def generateList(message, inputstring):
     pCount = 1
+    nCount = 1
+    mpaCount = 1
     playerlist = ''
     for member in EQTest[message.channel.name]:
-            playerlist += (str(pCount) + ". " + member.name + '\n')
-            pCount+=1
+        if nCount == 1:
+            playerlist += ('Party ' + str(mpaCount) + '\n')
+            mpaCount += 1
+        playerlist += (str(nCount) + ". " + member.name + '\n')
+        pCount+=1
+        nCount+=1
+        if nCount == 5:
+            playerlist += ('\n')
+            nCount = 1
         
     while pCount < 13:
-        playerlist += (str(pCount) + ".\n")
+        if nCount == 1:
+            playerlist += ('Party ' + str(mpaCount) + '\n')
+            mpaCount += 1
+        playerlist += (str(nCount) + ".\n")
         pCount+=1
+        nCount +=1
+        if nCount == 5:
+            playerlist += ('\n')
+            nCount = 1
         
-    global oldmessage
     try:
         client.edit_message(EQPostDict[message.channel.name], playerlist + inputstring)
     except:
@@ -166,15 +185,21 @@ def on_message(message):
         if not message.channel.name.startswith('eq'):
             client.send_message(message.channel, 'Hello {}'.format(message.author.mention() + '\nI am the bot that alerts you about the upcoming emergency quests in Ship 02(WIP).\n Here are the list of commands you are able to use: \n!help\n!eq\n!fuckyou\n!addme\n!removeme\n\n@MANAGERS\n!startmpa\n!removempa\n!addplayer *PLAYERNAME*\n!removeplayer *PLAYERNAME*'))
 
+    elif message.content.lower() == '!hello':
+        if not message.channel.name.startswith('eq'):
+            client.send_message(message.channel, 'Hello {}.'.format(message.author.mention()))
+
     elif message.content.lower() == '!fuckyou':
         if not message.channel.name.startswith('eq'):
-            client.send_message(message.channel, 'Fuck you {}!'.format(message.author.mention()) + '～:hearts:')
+            client.send_message(message.channel, 'Fuck you too, {}!'.format(message.author.mention()))
         
     elif message.content.lower() == '!startmpa':
         if message.channel.name.startswith('eq'):
             if not message.channel.name in EQTest:
                 if message.author.roles[1].permissions.can_manage_channels:
                     EQTest[message.channel.name] = list()
+                    for index in range(12):
+                        EQTest[message.channel.name].append(PlaceHolder(""))
                     client.send_message(message.channel, 'Starting MPA on {}'.format(message.channel.name))
                 else: 
                     client.send_message(message.channel, 'You are not a manager.')
@@ -184,28 +209,199 @@ def on_message(message):
             client.send_message(message.channel, 'You are unable to start a MPA on a non-EQ channel')
 
     elif message.content.lower() == '!addme':
+        global appended
         if message.channel.name.startswith('eq'):
             if message.channel.name in EQTest:
-                if len(EQTest[message.channel.name]) <= 11:
-                    if not(message.author in EQTest[message.channel.name]):
-                        if message.author.id == message.server.owner.id:
-                            EQTest[message.channel.name].insert(0, message.author)
-                            generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                for member in EQTest[message.channel.name]:
+                    if isinstance(member, PlaceHolder):
+                        if not(message.author in EQTest[message.channel.name]):
+                            if message.author.id == message.server.owner.id:
+                                EQTest[message.channel.name].pop(0)
+                                EQTest[message.channel.name].insert(0, message.author)
+                                generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                appended = True
+                                break
+
+                            elif message.author.roles[1].permissions.can_manage_channels:
+                                if isinstance(EQTest[message.channel.name][4], PlaceHolder): 
+                                    EQTest[message.channel.name].pop(4)
+                                    EQTest[message.channel.name].insert(4, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][8], PlaceHolder):
+                                    EQTest[message.channel.name].pop(8)
+                                    EQTest[message.channel.name].insert(8, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                else:
+                                    if isinstance(EQTest[message.channel.name][1], PlaceHolder): 
+                                        EQTest[message.channel.name].pop(1)
+                                        EQTest[message.channel.name].insert(1, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][2], PlaceHolder):
+                                        EQTest[message.channel.name].pop(2)
+                                        EQTest[message.channel.name].insert(2, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][3], PlaceHolder):
+                                        EQTest[message.channel.name].pop(3)
+                                        EQTest[message.channel.name].insert(3, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][5], PlaceHolder):
+                                        EQTest[message.channel.name].pop(5)
+                                        EQTest[message.channel.name].insert(5, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][6], PlaceHolder):
+                                        EQTest[message.channel.name].pop(6)
+                                        EQTest[message.channel.name].insert(6, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][7], PlaceHolder):
+                                        EQTest[message.channel.name].pop(7)
+                                        EQTest[message.channel.name].insert(7, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][9], PlaceHolder):
+                                        EQTest[message.channel.name].pop(9)
+                                        EQTest[message.channel.name].insert(9, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][10], PlaceHolder):
+                                        EQTest[message.channel.name].pop(10)
+                                        EQTest[message.channel.name].insert(10, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][11], PlaceHolder):
+                                        EQTest[message.channel.name].pop(11)
+                                        EQTest[message.channel.name].insert(11, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][0], PlaceHolder):
+                                        EQTest[message.channel.name].pop(0)
+                                        EQTest[message.channel.name].insert(0, message.author)
+                                        generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                        appended = True
+                                        break 
+                            else:
+                                if isinstance(EQTest[message.channel.name][1], PlaceHolder): 
+                                    EQTest[message.channel.name].pop(1)
+                                    EQTest[message.channel.name].insert(1, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][2], PlaceHolder):
+                                    EQTest[message.channel.name].pop(2)
+                                    EQTest[message.channel.name].insert(2, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][3], PlaceHolder):
+                                    EQTest[message.channel.name].pop(3)
+                                    EQTest[message.channel.name].insert(3, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][5], PlaceHolder):
+                                    EQTest[message.channel.name].pop(5)
+                                    EQTest[message.channel.name].insert(5, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][6], PlaceHolder):
+                                    EQTest[message.channel.name].pop(6)
+                                    EQTest[message.channel.name].insert(6, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][7], PlaceHolder):
+                                    EQTest[message.channel.name].pop(7)
+                                    EQTest[message.channel.name].insert(7, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][9], PlaceHolder):
+                                    EQTest[message.channel.name].pop(9)
+                                    EQTest[message.channel.name].insert(9, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][10], PlaceHolder):
+                                    EQTest[message.channel.name].pop(10)
+                                    EQTest[message.channel.name].insert(10, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][11], PlaceHolder):
+                                    EQTest[message.channel.name].pop(11)
+                                    EQTest[message.channel.name].insert(11, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][4], PlaceHolder):
+                                    EQTest[message.channel.name].pop(4)
+                                    EQTest[message.channel.name].insert(4, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][8], PlaceHolder):
+                                    EQTest[message.channel.name].pop(8)
+                                    EQTest[message.channel.name].insert(8, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
+                                elif isinstance(EQTest[message.channel.name][0], PlaceHolder):
+                                    EQTest[message.channel.name].pop(0)
+                                    EQTest[message.channel.name].insert(0, message.author)
+                                    generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+                                    appended = True
+                                    break
                         else:
-                            EQTest[message.channel.name].append(message.author)
-                            generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
-                    else:
-                        generateList(message, "You are already in the MPA")
-                else:
-                    generateList(message, 'The MPA is now full.')
+                            generateList(message, "*You are already in the MPA*")
+                            break
+                if not appended:
+                    generateList(message, "*The MPA is full*")
+                appended = False
+                            
+##                if len(EQTest[message.channel.name]) <= 11:
+##                    if not(message.author in EQTest[message.channel.name]):
+##                        if message.author.id == message.server.owner.id:
+##                            EQTest[message.channel.name].pop(0)
+##                            EQTest[message.channel.name].insert(0, message.author)
+##                            generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+##                        else:
+##                            EQTest[message.channel.name].append(message.author)
+##                            generateList(message, '*Added {} to the MPA list*'.format(message.author.name))
+##                    else:
+##                        generateList(message, "You are already in the MPA")
+##                else:
+##                    generateList(message, 'The MPA is now full.')
+                                    
             else:
                 client.send_message(message.channel, 'A manager did not start the MPA yet')
+        else:
+            client.delete_message(message)
 
     elif message.content.lower() == '!removeme':
             if message.channel.name.startswith('eq'):
                 if message.channel.name in EQTest:
                     if (message.author in EQTest[message.channel.name]):
-                        EQTest[message.channel.name].remove(message.author)
+                        index = EQTest[message.channel.name].index(message.author)
+                        EQTest[message.channel.name].pop(index)
+                        EQTest[message.channel.name].insert(index, PlaceHolder(''))
                         generateList(message, '*Removed {} from the MPA list*'.format(message.author.name))
                     else:
                      generateList(message, 'You were not in the MPA list in the first place.')
@@ -240,6 +436,7 @@ def on_message(message):
                                 if userstr == EQTest[message.channel.name][index].name:
                                     EQTest[message.channel.name][index] = userstr
                                     EQTest[message.channel.name].remove(userstr)
+                                    EQTest[message.channel.name].insert(index, PlaceHolder(''))
                                     userstr = userstr
                                     generateList(message, '*Removed {} from the MPA list*'.format(userstr))
                                     appended = True
@@ -256,27 +453,101 @@ def on_message(message):
             generateList(message, "You don't have permissions to use this command")
 
     elif message.content.lower().startswith('!addplayer'):
+        global appended
         if message.author.roles[1].permissions.can_manage_channels:
             userstr = ''
             if message.channel.name.startswith('eq'):
                 if message.channel.name in EQTest:
-                        if len(EQTest[message.channel.name]) <= 11:
-                            userstr = message.content
-                            userstr = userstr.replace("!addplayer", "")
-                            userstr = userstr.replace(" ", "")
-                            if userstr == "":
-                                client.send_message(message.channel, "You can't add nobody")
-                            else:
-                                EQTest[message.channel.name].append(FakeMember(userstr))
-                                generateList(message, '*Added {} to the MPA list*'.format(userstr))
-                        else:
-                            client.send_message(message.channel, 'The MPA is now full.')
+                    userstr = message.content
+                    userstr = userstr.replace("!addplayer", "")
+                    userstr = userstr.replace(" ", "")
+                    if userstr == "":
+                        client.send_message(message.channel, "You can't add nobody")
+                    else:
+                        for member in EQTest[message.channel.name]:
+                            if isinstance(member, PlaceHolder):
+                                if not(userstr in EQTest[message.channel.name]):
+                                    if isinstance(EQTest[message.channel.name][1], PlaceHolder): 
+                                        EQTest[message.channel.name].pop(1)
+                                        EQTest[message.channel.name].insert(1, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][2], PlaceHolder):
+                                        EQTest[message.channel.name].pop(2)
+                                        EQTest[message.channel.name].insert(2, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][3], PlaceHolder):
+                                        EQTest[message.channel.name].pop(3)
+                                        EQTest[message.channel.name].insert(3, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][5], PlaceHolder):
+                                        EQTest[message.channel.name].pop(5)
+                                        EQTest[message.channel.name].insert(5, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][6], PlaceHolder):
+                                        EQTest[message.channel.name].pop(6)
+                                        EQTest[message.channel.name].insert(6, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][7], PlaceHolder):
+                                        EQTest[message.channel.name].pop(7)
+                                        EQTest[message.channel.name].insert(7, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][9], PlaceHolder):
+                                        EQTest[message.channel.name].pop(9)
+                                        EQTest[message.channel.name].insert(9, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][10], PlaceHolder):
+                                        EQTest[message.channel.name].pop(10)
+                                        EQTest[message.channel.name].insert(10, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][11], PlaceHolder):
+                                        EQTest[message.channel.name].pop(11)
+                                        EQTest[message.channel.name].insert(11, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][8], PlaceHolder):
+                                        EQTest[message.channel.name].pop(8)
+                                        EQTest[message.channel.name].insert(8, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][4], PlaceHolder):
+                                        EQTest[message.channel.name].pop(4)
+                                        EQTest[message.channel.name].insert(4, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                                    elif isinstance(EQTest[message.channel.name][0], PlaceHolder):
+                                        EQTest[message.channel.name].pop(0)
+                                        EQTest[message.channel.name].insert(0, FakeMember(userstr))
+                                        generateList(message, '*Added {} to the MPA list*'.format(userstr))
+                                        appended = True
+                                        break
+                    if not appended:
+                        generateList(message, "*The MPA is full*")
                 else:
                     client.send_message(message.channel, 'There is no MPA.')
             else:
                 client.send_message(message.channel, 'There is nothing to remove in a non-EQ channel.')
         else:
             client.send_message(message.channel, "You don't have permissions to use this command")
+        appended = False
         
     elif message.content.lower() == '!eq':
         if not message.channel.name.startswith('eq'):
