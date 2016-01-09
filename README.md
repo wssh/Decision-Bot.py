@@ -1,11 +1,11 @@
 #Decision-Bot.py
 
-##01/09/2016
+##01/09/2016 Update
 This is a bot for a Discord server. This bot has functions that cater mainly to PSO2. It has the ability to shout at everyone whenever an EQ is coming up and it has the ability to organize multi-parties.
 
 I do not know if this bot is heroku-compatible. I haven't tried it and will not try it. If you do try it though, get back to me about it and do tell me how it works out.
 
-There are several base commands that the bot has. Any command listed with the notion [M] means that it can only be used by a user with a role that can manage channels. 
+There are several base commands that the bot has. Any command listed with the markdown **[M]** means that it can only be used by a user with a role that can manage channels. 
 
 **BASIC COMMANDS:**
 ```
@@ -30,6 +30,12 @@ There are several base commands that the bot has. Any command listed with the no
 !id - gives the user it's unique ID that is assigned to their account.
 !startparse - Called automatically once the bot has started. But starts the EQ-notification function.
 ```
+
+To get the bot to do it's autonomous methods, there are simple conditions that must be met:
+* There has to be a bot_notifications channel for the bot to post in, or the bot will proceed to post EQ notifications in the default channel.
+* Emergency Quest channels must start with an **eq** tag in order for the bot to keep track of MPAs. An example of such channel name can be *eq_pd_11pm*.
+
+That's about it.
 
 You will need the following API to get the bot working: https://github.com/Rapptz/discord.py
 
