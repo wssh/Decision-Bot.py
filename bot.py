@@ -1,4 +1,5 @@
 import discord
+import asyncio
 import urllib.request
 import urllib.parse
 import re
@@ -53,8 +54,6 @@ password = password.replace('\n', '')
 
 fp_infos.close()
 client = discord.Client()
-client.login(user, password)
-
 
 #Generates the list that the bot will be posting everytime the list updates. The format is as follows:
 #Party 1
@@ -174,14 +173,15 @@ def findEQ():
     
 @client.event
 #Print-out to CMD who you're logged in as
-def on_ready():
+async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
-    
+
+    servers =  list(client.servers)
     global announcementChannel
-    announcementChannel = client.servers[0]
+    announcementChannel = servers[0]
     #finds the bot_notifications channel to print out EQ notifications there, if none is found, then the default channel is selected.
     for x in client.get_all_channels():
         print("Checking " + x.name)
@@ -192,15 +192,15 @@ def on_ready():
     findEQ() #start the EQ notification method.
 
 @client.event
-def on_message(message):
+async def on_message(message):
 ##  GENERAL COMMANDS
     if message.content.lower() == '!help':
         if not message.channel.name.startswith('eq'):
-            client.send_message(message.channel, 'Hello {}'.format(message.author.mention() + '\nI am the bot that alerts you about the upcoming emergency quests in Ship 02.\n Here are the list of commands you are able to use: \n!help\n!eq\n!hello\n!fuckyou\n!addme\n!removeme\n\n@MANAGERS\n!startmpa\n!removempa\n!addplayer *PLAYERNAME*\n!removeplayer *PLAYERNAME*'))
+            client.send_message(message.channel, 'Hello {}'.format(message.author.mention + '\nI am the bot that alerts you about the upcoming emergency quests in Ship 02.\n Here are the list of commands you are able to use: \n!help\n!eq\n!hello\n!fuckyou\n!addme\n!removeme\n\n@MANAGERS\n!startmpa\n!removempa\n!addplayer *PLAYERNAME*\n!removeplayer *PLAYERNAME*'))
 
     elif message.content.lower() == '!hello':
         if not message.channel.name.startswith('eq'):
-            client.send_message(message.channel, 'Hello {}.'.format(message.author.mention()))
+            client.send_message(message.channel, 'Hello {}.'.format(message.author.mention))
 
     elif message.content.lower() == '!fuckyou':
         if not message.channel.name.startswith('eq'):
@@ -583,17 +583,17 @@ def on_message(message):
 ##    elif message.content.lower() == '!id':
 ##        if not message.channel.name.startswith('eq'):
 ##            #DEBUG client.send_message(message.channel, message.author.id)
-
+##
 @client.event
 #when a member joins the server, welcome the person.
-def on_member_join(member):
+async def on_member_join(member):
     server = member.server
     client.send_message(server, 'Welcome {0} to {1.name}! Please use !help to figure out how I work'.format(member.mention(), server))
 
 @client.event
 #Automiatically starts an MPA the moment the EQ channel is created.
-def on_channel_create(channel):
+async def on_channel_create(channel):
     if channel.name.startswith('eq'):
         client.send_message(channel, '!startmpa')
 
-client.run()
+client.run(user, password)
