@@ -4,7 +4,6 @@ import urllib.request
 import urllib.parse
 import re
 from datetime import datetime,tzinfo,timedelta
-import threading
 from random import randint
  
 class Zone(tzinfo):
@@ -186,7 +185,7 @@ def findEQ():
                 print(date)
                 print(finalstr)
                 oldstr = finalstr 
-        yield from asyncio.sleep(300) # task runs every 300 seconds/5 minutes
+        yield from asyncio.sleep(150) # task runs every 150 seconds/2.5 minutes
 
 @client.event
 @asyncio.coroutine
