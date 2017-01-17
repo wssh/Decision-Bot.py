@@ -11,8 +11,7 @@ There are several base commands that the bot has. Any command listed with the ma
 ```
 !help - spits out a wall of text that tells the users what the bot is capable of and what commands users are allowed to use
 !hello - replies to the user with a simple hello.
-!fuckyou - replies to the user with a simple fuck you.
-!eq - posts the current EQ status that comes straight from Flyergo's API.
+!eq - posts the current EQ(Emergency Quest) status that comes straight from Flyergo's API.
 ```
 
 **EQ COMMANDS:**
